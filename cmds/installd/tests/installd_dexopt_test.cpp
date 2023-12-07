@@ -63,6 +63,8 @@ static const std::string kRuntimeIsa = "mips64";
 static const std::string kRuntimeIsa = "x86";
 #elif defined(__x86_64__)
 static const std::string kRuntimeIsa = "x86_64";
+#elif defined(__loongarch__)
+static const std::string kRuntimeIsa = "loongarch64";
 #else
 static const std::string kRuntimeIsa = "none";
 #endif
@@ -816,6 +818,9 @@ TEST_F(DexoptTest, DexoptDex2oat64Enabled) {
         android::base::SetProperty(property, previous_value);
     });
     std::string odex = GetPrimaryDexArtifact(app_oat_dir_.c_str(), apk_path_, "odex");
+#if (defined(__loongarch__) && (__loongarch_grlen == 64))
+    // 64bit only has no dex2oat32
+#else
     // Disable the property and use dex2oat32.
     ASSERT_TRUE(android::base::SetProperty(property, "false")) << property;
     CompilePrimaryDexOk("speed-profile",
@@ -826,6 +831,7 @@ TEST_F(DexoptTest, DexoptDex2oat64Enabled) {
                         DEX2OAT_FROM_SCRATCH,
                         /*binder_result=*/nullptr,
                         empty_dm_file_.c_str());
+#endif
     // Enable the property and use dex2oat64.
     ASSERT_TRUE(android::base::SetProperty(property, "true")) << property;
     CompilePrimaryDexOk("speed-profile",

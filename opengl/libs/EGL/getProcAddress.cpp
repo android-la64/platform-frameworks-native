@@ -182,6 +182,27 @@ namespace android {
                                           ext.extensions[_api]))    \
                 :                                                   \
             );
+#elif defined(__loongarch__) && (__loongarch_grlen == 64)
+    #define API_ENTRY(_api) __attribute__((noinline)) _api
+
+    #define CALL_GL_EXTENSION_API(_api)                             \
+        asm volatile(                                               \
+            "or $t0, $zero, $tp\n"                                      \
+            "li.d $t1, %[tls]\n" \
+            "add.d $t0, $t0, $t1\n" \
+            "ld.d $t0, $t0, 0\n"                              \
+            "beqz $t0, 1f\n"                                    \
+            "li.d $t1, %[api]\n" \
+            "add.d $t0, $t0, $t1\n" \
+            "ld.d $t0, $t0, 0\n"                                   \
+            "jirl $zero, $t0, 0\n"                                        \
+            "1:\n" \
+            :                                                       \
+            : [tls] "i" (TLS_SLOT_OPENGL_API * sizeof(void*)),      \
+              [api] "i" (__builtin_offsetof(gl_hooks_t,             \
+                                        ext.extensions[_api]))      \
+            : "t0", "t1"                                                \
+        );
 
 #endif
 

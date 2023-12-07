@@ -221,8 +221,8 @@ typedef enum OMX_BOOL {
  * After this change, OMX codecs will work in 32 bit only, so 64 bit processes
  * must communicate to a remote 32 bit process for OMX to work.
  */
-
-#ifdef OMX_ANDROID_COMPILE_AS_32BIT_ON_64BIT_PLATFORMS
+//FIXME loongarch: compile 64 bit service
+#if 0//def OMX_ANDROID_COMPILE_AS_32BIT_ON_64BIT_PLATFORMS
 
 typedef uint32_t OMX_PTR;
 typedef OMX_PTR OMX_STRING;

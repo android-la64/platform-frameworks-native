@@ -55,7 +55,7 @@ cc_defaults {
         "-fvisibility=hidden",
     ],
     lto: {
-        thin: true,
+        thin: false,
     },
     whole_program_vtables: true, // Requires ThinLTO
 }

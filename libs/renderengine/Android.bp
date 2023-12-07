@@ -119,9 +119,9 @@ cc_library_static {
         "external/skia/src/gpu",
     ],
     whole_static_libs: ["libskia_renderengine"],
-    lto: {
-        thin: true,
-    },
+    //lto: {
+    //    thin: true,
+    //},
 }
 
 cc_library_static {
