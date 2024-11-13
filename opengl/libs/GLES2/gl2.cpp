@@ -191,6 +191,32 @@ using namespace android;
             :                              \
         );
 
+#elif defined(__loongarch__) && (__loongarch_grlen == 64)
+
+    #define API_ENTRY(_api) __attribute__((naked,noinline)) _api
+
+    #define CALL_GL_API_INTERNAL_CALL(_api, ...)                 \
+        asm volatile(                                            \
+            "or $t0, $zero, $tp\n"                                      \
+            "li.d $t1, %[tls]\n" \
+            "add.d $t0, $t0, $t1\n" \
+            "ld.d $t0, $t0, 0\n"                              \
+            "beqz $t0, 1f\n"                                    \
+            "li.d $t1, %[api]\n" \
+            "add.d $t0, $t0, $t1\n" \
+            "ld.d $t0, $t0, 0\n"                                   \
+            "jirl $zero, $t0, 0\n"                                        \
+            "1:\n" \
+            :                                                    \
+            : [tls] "i"(TLS_SLOT_OPENGL_API*sizeof(void *)),     \
+              [api] "i"(__builtin_offsetof(gl_hooks_t, gl._api))  \
+            : "t0", "t1", "t2", "a0", "a1", "a2", "a3", "a4",    \
+              "a5", "t6", "t3", "t4", "t5", "t6"                 \
+        );
+
+    #define CALL_GL_API_INTERNAL_SET_RETURN_VALUE
+    #define CALL_GL_API_INTERNAL_DO_RETURN
+
 #elif defined(__riscv)
 
     #define API_ENTRY(_api) __attribute__((naked,noinline)) _api
